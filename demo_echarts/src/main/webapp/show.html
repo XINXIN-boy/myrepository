@@ -1,0 +1,122 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>第一个 ECharts 实例</title>
+    <!-- 引入 echarts.js -->
+    <script src="js/echarts.min.js"></script>
+    <script src="js/jquery-2.1.0.js" ></script>
+    <style type="text/css" >
+        body{
+            text-align: center;
+        }
+        div{
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+<!-- 为ECharts准备一个具备大小（宽高）的Dom 画布 -->
+<div id="main" style="width: 60%;height:500px; margin:200px "></div>
+<div id="left" style="width: 60%;height:500px; margin:200px "></div>
+
+<script type="text/javascript">
+    // 基于准备好的dom，初始化echarts实例
+    var myChart = echarts.init(document.getElementById('main'));
+    // 显示标题，图例和空的坐标轴
+    myChart.setOption({
+        title: {
+            text: 'commodity的数量展示'
+        },
+        tooltip: {},
+        legend: {
+            data:['数量']
+        },
+        xAxis: {
+            data: []
+        },
+        yAxis: {},
+        series: [{
+            name: '数量',
+            type: 'bar',
+            data: []
+        }]
+    });
+
+    // 异步加载数据
+var num = [] ;
+var names = [] ;
+    $(function () {
+        $.ajax({
+            url:"find.do" ,
+            type:"get" ,
+            success:function (data) {
+                var list = data.data ;
+                for (var i = 0 ; i < list.length ;i++ ){
+                    num[i] = list[i].number ;
+                    names[i] = list[i].name ;
+                }
+                myChart.setOption({
+                    xAxis: {
+                        data:names
+                    } ,
+                    series:[{
+                        name:'数量',
+                        data:num
+                    }]
+                })
+            }
+        })
+    })
+
+
+
+</script>
+
+
+<script type="text/javascript">
+
+    // 基于准备好的dom，初始化echarts实例
+    var myChart1 = echarts.init(document.getElementById('left'));
+    // 显示标题，图例和空的坐标轴
+    myChart1.setOption({
+        title: {
+            text: '饼状图'
+        },
+        tooltip: {},
+        series: [{
+            name: '数量',
+            type: 'pie',
+            radius:'55%' ,
+            data: []
+        }]
+    });
+
+    // 异步加载数据
+var number = [] ;
+    $(function () {
+        $.ajax({
+            url:"query.do" ,
+            type:"get" ,
+            success:function (data) {
+                myChart1.setOption({
+                    series: [{
+                        name: '数量',
+                        type: 'pie',
+                        radius:'55%' ,
+                        data: data.data
+                    }]
+                })
+            }
+        })
+    })
+
+
+
+
+
+</script>
+
+</body>
+</html>

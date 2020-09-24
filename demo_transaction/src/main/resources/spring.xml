@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!--扫描注解-->
+    <context:component-scan base-package="com.itqf.demo05.service"></context:component-scan>
+
+    <!-- 1 druid数据源 -->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+          init-method="init" destroy-method="close">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver" />
+        <property name="url" value="jdbc:mysql://localhost:3306/ssm" />
+        <property name="username" value="root" />
+        <property name="password" value="wxhdszz..." />
+
+        <!-- 配置初始化大小、最小、最大 -->
+        <property name="initialSize" value="1" />
+        <property name="minIdle" value="1" />
+        <property name="maxActive" value="10" />
+        <!-- 配置获取连接等待超时的时间 -->
+        <property name="maxWait" value="10000" />
+        <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+        <property name="timeBetweenEvictionRunsMillis" value="60000" />
+        <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+        <property name="minEvictableIdleTimeMillis" value="300000" />
+        <property name="testWhileIdle" value="true" />
+        <!-- 这里建议配置为TRUE，防止取到的连接不可用 -->
+        <property name="testOnBorrow" value="true" />
+        <property name="testOnReturn" value="false" />
+
+    </bean>
+
+    <!-- 2 创建Mybatis的工厂对象 -->
+    <bean id="sqlSessionFactory"
+          class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--设置数据库连接池 -->
+        <property name="dataSource" ref="dataSource"></property>
+        <!-- 加载mybatis主配置文件  classpath 表示classes目录所在路径 -->
+        <property name="configLocation" value="classpath:mybatis.xml"/>
+        <!-- 加载映射文件 -->
+        <property name="mapperLocations" value="classpath:com/itqf/demo05/mapper/*.xml"/>
+    </bean>
+    <!--3设置Mybatis的映射接口 -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+        <!-- 设置映射接口所在包 -->
+        <property name="basePackage" value="com.itqf.demo05.dao"></property>
+    </bean>
+
+    <!-- 配置事务管理器  -->
+    <bean id="dataSourceTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+    <!-- 配置事务通知
+           首先导入事务的约束 tx
+             id="txAdvice"  设置一个唯一标识
+             transaction-manager="dataSourceTransactionManager"  给事务通知提供一个事务管理器的引用
+    -->
+    <tx:advice id="txAdvice" transaction-manager="dataSourceTransactionManager" >
+        <!-- 配置事务的属性
+        isolation=""  事务的隔离级别  默认值式default 数据库的默认
+          propagation=" "用于指定事务的传播行为  默认值 required 表示一定会有事务 增删改的选择   查询可以选择supports
+           read-only=" " 用于指定事务是否只读  只有查询设为 true   默认false读写
+         timeout=""  用于指定事务的超时时间  默认-1 表示永不超时  如果指定 则以秒为单位
+         rollback-for=""  用于指定一个异常，当该异常产生的时候 事务回滚    产生别的异常的时候 则不会回滚  没有默认  表示任何异常都回滚
+            no-rollback-for=" "  用于指定一个异常 ，当该异常产生的时候，不回滚   没有默认  表示任何异常都回滚
+             -->
+        <tx:attributes>
+            <tx:method name="*" propagation="REQUIRED" read-only="false" />
+        </tx:attributes>
+    </tx:advice>
+
+    <!-- 配置aop -->
+    <aop:config>
+        <!-- 切点 -->
+        <aop:pointcut id="poin" expression="execution(* com.itqf.demo05.service.impl.*.*(..))"/>
+        <!-- 建立切点和 表达式的关系 -->
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="poin"></aop:advisor>
+    </aop:config>
+</beans>

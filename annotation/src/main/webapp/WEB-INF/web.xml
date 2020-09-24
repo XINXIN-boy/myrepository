@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+         version="4.0">
+
+<welcome-file-list>
+    <welcome-file>annotation.html</welcome-file>
+</welcome-file-list>
+
+
+    <!-- 引入spring mvc的核心控制器 配置  这两个不变 -->
+    <servlet>
+        <servlet-name>DispatchServlet</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <!-- 指定加载哪个配置文件 这个需要注意
+           classpath 相当于编译后的classes 文件夹
+          spring-mvc.xml  就是spring-mvc的配置文件 -->
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>classpath:springmvc.xml</param-value>
+        </init-param>
+        <!-- tomcat服务器启动时，创建servlet对象
+           饿汉模式 设置优先级 启动之初就进行加载 创建实例 -->
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <!-- servlet 对应的mapping映射，
+            也是DispathcherServlet拦截的文件设置 -->
+    <servlet-mapping>
+        <servlet-name>DispatchServlet</servlet-name>
+        <url-pattern>*.do</url-pattern>
+    </servlet-mapping>
+
+    <!-- ssm跨域访问 -->
+    <filter>
+        <filter-name>CORS</filter-name>
+        <filter-class>com.thetransactioncompany.cors.CORSFilter</filter-class>
+        <init-param>
+            <param-name>cors.allowOrigin</param-name>   <!--配置授信的白名单的域名！ -->
+            <param-value>*</param-value>
+        </init-param>
+        <init-param>
+            <param-name>cors.supportedMethods</param-name>
+            <param-value> GET, POST, HEAD, PUT, DELETE </param-value>
+        </init-param>
+        <init-param>
+            <param-name>cors.supportedHeaders</param-name>
+            <param-value> Accept, Origin, X-Requested-With, Content-Type, Last-Modified </param-value>
+        </init-param>
+        <init-param>
+            <param-name>cors.exposedHeaders</param-name>
+            <param-value>Set-Cookie</param-value>
+        </init-param>
+        <init-param>
+            <param-name>cors.supportsCredentials</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>CORS</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+</web-app>

@@ -1,0 +1,36 @@
+ <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>跨域测试</title>
+        <script src="js/jquery-2.1.0.js"></script>
+    </head>
+<body>
+
+<a href="annotation/testrequestbody.do/10.do" >testrequestbody</a>
+
+<form >
+
+    <input type="text" name="username" placeholder="用户名" /><br />
+    <input type="text" name="password" placeholder="密码" />
+
+</form>
+<button type="submit"> 提交 </button>
+<script type="text/javascript" >
+    $("button").click(function(){
+        alert(1)
+        $.ajax({
+            type:"post",
+            url:"annotation/testrequestbody.do",
+            data:$("form").serialize() ,
+            success:function(data){
+                location.href = "success.jsp"
+            }
+
+        });
+    })
+
+</script>
+
+</body>
+</html>
